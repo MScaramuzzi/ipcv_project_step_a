@@ -9,7 +9,7 @@ from glob import glob
 def load_single_model(model_file_name, model_dir="models/"):
     """Carica le immagini dei modelli in RGB e in scala di grigi."""
     read_image = cv2.imread(os.path.join(model_dir,model_file_name))
-    img_query = cv2.cvtColor(read_image, cv2.COLOR_BGR2GRAY) 
+    img_query = cv2.cvtColor(read_image, cv2.COLOR_BGR2RGB) 
     return img_query
 
 
@@ -29,7 +29,7 @@ def load_single_scene(scene_filename, scene_dir="scenes/step_A/"):
     """Carica un'immagine di scena e la converte in RGB e scala di grigi."""
     img_path = os.path.join(scene_dir, scene_filename + ".png")
     img = cv2.imread(img_path)
-    img_train = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img_train = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img_train
 
 
