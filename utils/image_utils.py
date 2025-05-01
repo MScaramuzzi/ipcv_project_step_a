@@ -7,39 +7,11 @@ from glob import glob
 from numpy.typing import NDArray
 
 
-def get_median_model_height(model_dir: str, step_dir: str = "step_C") -> int:
-    """
-    Computes the median height of all model images inside the specified directory.
-
-    Args:
-        model_dir (str): Base path to the model folder.
-        step_dir (str): Subfolder containing the images.
-
-    Returns:
-        int: Median image height
-    """
-    pattern = os.path.join(model_dir, step_dir, "*.jpg")
-    model_paths = glob(pattern)
-
-    heights = []
-    for path in model_paths:
-        img = cv2.imread(path)
-        if img is not None:
-            heights.append(img.shape[0])
-
-    if not heights:
-        raise ValueError("No model images found or all failed to load.")
-
-    median_height = int(np.median(heights))
-    return median_height
-
-
-
 def load_images(
     base_path: str,
     step_directory: str,
     image_indices: list[int] = [1, 2, 3, 4, 5],
-    auto_resize_height: bool = False,
+    is_resized: bool = False,
     target_model_dims: tuple[int,int] = (180, 250),
 ) -> dict[int, NDArray[np.uint8]]:
     """
@@ -51,11 +23,11 @@ def load_images(
         step_directory (str): Subdirectory path inside the base folder
         image_indices (list[int]): List of indices to assign to each image
         target_model_height (int): Height to which model images should be resized
-        auto_resize_height (bool): If True, overrides target_model_height with median of model heights
 
     Returns:
         dict[int, np.ndarray]: Dictionary mapping index to RGB image
     """
+
     if (base_path == 'models') or (base_path == 'scenes' and step_directory == 'step_C'):
         end_path = '.jpg'
     else:
@@ -67,11 +39,6 @@ def load_images(
 
     assert len(image_indices) == len(images), "Mismatch between image count and indices"
 
-    # Auto-resize height logic
-    # if base_path == 'models' and auto_resize_height:
-    #     target_model_height = get_median_model_height(base_path, step_directory)
-    #     print(f"[INFO] Using median model height: {target_model_height}px")
-
     images_dict = {}
 
     for idx, image_path in enumerate(images):
@@ -79,14 +46,14 @@ def load_images(
         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
         original_height, original_width = img_rgb.shape[:2]
 
-        if base_path == 'models':
+        if base_path == 'models' and is_resized == True:
             # Print shape if the image is a model
             print(f'model: {image_indices[idx]} | {original_height = } | {original_width = }')
 
             # Resize model images to fixed or auto height
             img_rgb = cv2.resize(img_rgb, target_model_dims)
 
-
+        # Save the model in the dictionary at the corresponding index
         images_dict[image_indices[idx]] = img_rgb
 
     return images_dict
@@ -105,7 +72,7 @@ def show_images(images_dict: dict, n_cols: int, title: str = '') -> None:
     """
 
     num_images = len(images_dict.keys())
-    rows = (num_images + n_cols - 1) // n_cols  # Calcola il numero di righe necessarie
+    rows = (num_images + n_cols - 1) // n_cols  # Compute the required number of rows
 
     plt.figure(figsize=(15, 4 * rows), dpi=100)
     for i, img in enumerate(list(images_dict.values())):
@@ -118,23 +85,23 @@ def show_images(images_dict: dict, n_cols: int, title: str = '') -> None:
     plt.show()
 
 
-def plot_bbox(img_train_bounding: NDArray[np.uint8], model_id: int, scene_id: int) -> None:
-    """
-    Plots the bounding box of a detected model on the scene image.
+# def plot_bbox(img_train_bounding: NDArray[np.uint8], model_id: int, scene_id: int) -> None:
+#     """
+#     Plots the bounding box of a detected model on the scene image.
 
-    Args:
-        img_train_bounding (NDArray[np.uint8]): The scene image with the bounding box drawn on it.
-        model_id (int): The ID of the detected model.
-        scene_id (int): The ID of the scene being analyzed.
+#     Args:
+#         img_train_bounding (NDArray[np.uint8]): The scene image with the bounding box drawn on it.
+#         model_id (int): The ID of the detected model.
+#         scene_id (int): The ID of the scene being analyzed.
 
-    Returns:
-        None: Displays the image with the bounding box using matplotlib.
-    """
+#     Returns:
+#         None: Displays the image with the bounding box using matplotlib.
+#     """
 
-    plt.figure(figsize=(15, 8), dpi=100)
-    plt.imshow(img_train_bounding, 'gray', vmin=0, vmax=255)
-    plt.title(f'Drawing bounding box of model {model_id} for scene {scene_id}', fontsize=13)
-    plt.show()
+#     plt.figure(figsize=(15, 8), dpi=100)
+#     plt.imshow(img_train_bounding, 'gray', vmin=0, vmax=255)
+#     plt.title(f'Drawing bounding box of model {model_id} for scene {scene_id}', fontsize=13)
+#     plt.show()
 
 def draw_bounding_box(img_train: NDArray[np.uint8], dst: NDArray[np.float32]) -> NDArray[np.uint8]:
     """
