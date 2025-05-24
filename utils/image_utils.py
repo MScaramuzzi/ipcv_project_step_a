@@ -12,8 +12,8 @@ def load_images(
     step_directory: str,
     image_indices: list[int] = [1, 2, 3, 4, 5],
     is_resized: bool = False,
-    target_model_dims: tuple[int,int] = (180, 250),
-) -> dict[int, NDArray[np.uint8]]:
+    target_model_dims: tuple[int, int] = (180, 250),
+) -> tuple[dict[int, NDArray[np.uint8]], dict[int, NDArray[np.uint8]]]:
     """
     Load images from disk. If base_path is 'models', resize images to a standard height
     either passed manually or calculated automatically from the dataset.
@@ -25,7 +25,8 @@ def load_images(
         target_model_height (int): Height to which model images should be resized
 
     Returns:
-        dict[int, np.ndarray]: Dictionary mapping index to RGB image
+        Tuple[dict[int, np.ndarray], dict[int, np.ndarray]]:
+            Dictionary mapping index to RGB image and dictionary mapping index to grayscale image
     """
 
     if (base_path == 'models') or (base_path == 'scenes' and step_directory == 'step_C'):
@@ -39,27 +40,28 @@ def load_images(
 
     assert len(image_indices) == len(images), "Mismatch between image count and indices"
 
-    images_dict = {}
+    images_dict_rgb = {}
+    images_gray_dict = {}
 
     for idx, image_path in enumerate(images):
         img_bgr = cv2.imread(image_path)
         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+        img_grey = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2GRAY)
+
         original_height, original_width = img_rgb.shape[:2]
 
         if base_path == 'models' and is_resized == True:
-            # Print shape if the image is a model
             print(f'model: {image_indices[idx]} | {original_height = } | {original_width = }')
-
-            # Resize model images to fixed or auto height
-            img_rgb = cv2.resize(img_rgb, target_model_dims)
-
-        # Save the model in the dictionary at the corresponding index
-        images_dict[image_indices[idx]] = img_rgb
-
-    return images_dict
+            img_grey = cv2.resize(img_grey, target_model_dims)
 
 
-def show_images(images_dict: dict, n_cols: int, title: str = '') -> None:
+        images_dict_rgb[image_indices[idx]] = img_rgb
+        images_gray_dict[image_indices[idx]] = img_grey
+
+    return images_dict_rgb, images_gray_dict
+
+
+def show_images(images_dict: dict, n_cols: int, title: str = '', is_greyscale: bool = True) -> None:
     """
     Displays a dictionary of images in a grid format using Matplotlib.
     Args:
@@ -77,7 +79,12 @@ def show_images(images_dict: dict, n_cols: int, title: str = '') -> None:
     plt.figure(figsize=(15, 4 * rows), dpi=100)
     for i, img in enumerate(list(images_dict.values())):
         plt.subplot(rows, n_cols, i + 1)
-        plt.imshow(img)
+
+        if is_greyscale:
+            plt.imshow(img, 'gray', vmin=0, vmax=255)
+        else:
+            plt.imshow(img)
+
         if title:
             plt.title(f'Image num. {list(images_dict.keys())[i]}')
             plt.suptitle(title,fontsize=15)
