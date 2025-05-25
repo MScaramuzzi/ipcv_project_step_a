@@ -14,6 +14,7 @@ def load_images(
     is_resized: bool = False,
     target_model_dims: tuple[int, int] = (180, 250),
 ) -> tuple[dict[int, NDArray[np.uint8]], dict[int, NDArray[np.uint8]]]:
+
     """
     Load images from disk. If base_path is 'models', resize images to a standard height
     either passed manually or calculated automatically from the dataset.
@@ -54,14 +55,16 @@ def load_images(
             print(f'model: {image_indices[idx]} | {original_height = } | {original_width = }')
             img_grey = cv2.resize(img_grey, target_model_dims)
 
-
         images_dict_rgb[image_indices[idx]] = img_rgb
         images_gray_dict[image_indices[idx]] = img_grey
 
     return images_dict_rgb, images_gray_dict
 
 
-def show_images(images_dict: dict, n_cols: int, title: str = '', is_greyscale: bool = True) -> None:
+def show_images(images_dict: dict, n_cols: int,
+                title: str = '',
+                is_greyscale: bool = True) -> None:
+
     """
     Displays a dictionary of images in a grid format using Matplotlib.
     Args:
@@ -90,42 +93,3 @@ def show_images(images_dict: dict, n_cols: int, title: str = '', is_greyscale: b
             plt.suptitle(title,fontsize=15)
         # plt.axis('off')
     plt.show()
-
-
-# def plot_bbox(img_train_bounding: NDArray[np.uint8], model_id: int, scene_id: int) -> None:
-#     """
-#     Plots the bounding box of a detected model on the scene image.
-
-#     Args:
-#         img_train_bounding (NDArray[np.uint8]): The scene image with the bounding box drawn on it.
-#         model_id (int): The ID of the detected model.
-#         scene_id (int): The ID of the scene being analyzed.
-
-#     Returns:
-#         None: Displays the image with the bounding box using matplotlib.
-#     """
-
-#     plt.figure(figsize=(15, 8), dpi=100)
-#     plt.imshow(img_train_bounding, 'gray', vmin=0, vmax=255)
-#     plt.title(f'Drawing bounding box of model {model_id} for scene {scene_id}', fontsize=13)
-#     plt.show()
-
-def draw_bounding_box(img_train: NDArray[np.uint8], dst: NDArray[np.float32]) -> NDArray[np.uint8]:
-    """
-    Draws a bounding box on the given image using the provided destination points.
-
-    Args:
-        img_train (NDArray[np.uint8]): The image on which the bounding box will be drawn.
-        dst (NDArray[np.float32]): The destination points for the bounding box.
-
-    Returns:
-        NDArray[np.uint8]: The image with the bounding box drawn.
-    """
-    return cv2.polylines(
-        img_train,  # Ensure the original image is not modified
-        pts=[np.int32(dst)],
-        isClosed=True,
-        color=(0, 255, 0),
-        thickness=4,
-        lineType=cv2.LINE_AA
-    )

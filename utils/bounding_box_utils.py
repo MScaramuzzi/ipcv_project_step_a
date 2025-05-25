@@ -1,6 +1,8 @@
 import numpy as np
 from typing import Tuple
 import cv2
+from numpy.typing import NDArray
+
 
 def compute_aligned_rectangle(corners: np.ndarray,
                               img_shape: Tuple[int, int]) -> Tuple[np.ndarray, int, int, np.ndarray]:
@@ -62,6 +64,31 @@ def compute_aligned_rectangle(corners: np.ndarray,
     return rectangle, width, height, center
 
 
+def draw_bounding_box(img_train: NDArray[np.uint8],
+                    dst: NDArray[np.float32]) -> NDArray[np.uint8]:
+
+    """
+    Draws a bounding box on the given image using the provided destination points.
+
+    Args:
+        img_train (NDArray[np.uint8]): The image on which the bounding box will be drawn.
+        dst (NDArray[np.float32]): The destination points for the bounding box.
+
+    Returns:
+        NDArray[np.uint8]: The image with the bounding box drawn.
+    """
+
+    return cv2.polylines(
+        img_train,
+        pts=[np.int32(dst)],
+        isClosed=True,
+        color=(0, 255, 0),
+        thickness=4,
+        lineType=cv2.LINE_AA
+    )
+
+
+
 def draw_text_with_background(img: np.ndarray,
                             text: str,
                             center: np.ndarray,
@@ -113,3 +140,34 @@ def draw_text_with_background(img: np.ndarray,
     cv2.putText(img, text, (x, y + text_height), font, font_scale, text_color, thickness, cv2.LINE_AA)
 
     return img
+
+
+
+def height_correction(rectangle, width, height, center, model_img, img_shape, threshold=1.15):
+    import numpy as np
+
+    model_h, model_w = model_img.shape[:2]
+    model_aspect = model_h / model_w
+    detected_aspect = height / width
+
+    if detected_aspect > model_aspect * threshold:
+        new_height = int(width * model_aspect)
+        cx, cy = center
+        img_h, img_w = img_shape[:2]
+
+        # Compute top and bottom, keep center and width
+        top_y = int(np.clip(cy - new_height // 2, 0, img_h-1))
+        bottom_y = int(np.clip(cy + new_height // 2, 0, img_h-1))
+        left_x = rectangle[0][0][0]
+        right_x = rectangle[2][0][0]
+
+        # Rebuild rectangle
+        corrected_rectangle = np.array([
+            [[left_x, top_y]],
+            [[left_x, bottom_y]],
+            [[right_x, bottom_y]],
+            [[right_x, top_y]]
+        ])
+        return corrected_rectangle, width, (bottom_y-top_y), center
+    else:
+        return rectangle, width, height, center
