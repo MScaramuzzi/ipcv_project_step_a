@@ -4,23 +4,32 @@ import cv2
 from numpy.typing import NDArray
 
 
-def compute_aligned_rectangle(corners: np.ndarray,
-                              img_shape: Tuple[int, int]) -> Tuple[np.ndarray, int, int, np.ndarray]:
+def compute_aligned_rectangle(
+        corners: np.ndarray,
+        img_shape: Tuple[int, int]
+    ) -> Tuple[np.ndarray, int, int, np.ndarray]:
+
     """
     Compute an axis-aligned rectangle approximation from four corner points, ensuring the rectangle
     remains within the image boundaries. The function calculates the rectangle's dimensions,
     center, and adjusted corner points to provide a simplified representation of the region.
 
     Args:
-        corners (np.ndarray): A 4x1x2 array representing the four corner points of a quadrilateral.
-        img_shape (Tuple[int, int]): The shape of the image as (height, width), used to constrain
-                                     the rectangle within valid image boundaries.
+        corners (np.ndarray):
+            A 4x1x2 array representing the four corner points of a quadrilateral.
+        img_shape (Tuple[int, int]):
+            The shape of the image as (height, width), used to constrain
+            the rectangle within valid image boundaries.
 
     Returns:
-        rectangle (np.ndarray): A 4x1x2 array representing the axis-aligned rectangle's corner points.
-        width (int): The width of the rectangle, computed as the horizontal distance between corners.
-        height (int): The height of the rectangle, computed as the vertical distance between corners.
-        center (np.ndarray): The center point of the rectangle as a 2D coordinate (x, y).
+        rectangle (np.ndarray):
+            A 4x1x2 array representing the axis-aligned rectangle's corner points.
+        width (int):
+            The width of the rectangle, computed as the horizontal distance between corners.
+        height (int):
+            The height of the rectangle, computed as the vertical distance between corners.
+        center (np.ndarray):
+            The center point of the rectangle as a 2D coordinate (x, y).
     """
 
     # Extract the 4 points from the input array
@@ -64,8 +73,10 @@ def compute_aligned_rectangle(corners: np.ndarray,
     return rectangle, width, height, center
 
 
-def draw_bounding_box(img_train: NDArray[np.uint8],
-                    dst: NDArray[np.float32]) -> NDArray[np.uint8]:
+def draw_bounding_box(
+        img_train: NDArray[np.uint8],
+        dst: NDArray[np.float32]
+    ) -> NDArray[np.uint8]:
 
     """
     Draws a bounding box on the given image using the provided destination points.
@@ -98,6 +109,7 @@ def draw_text_with_background(img: np.ndarray,
                             bg_color=(255, 255, 255),
                             opacity=0.5,
                             text_color=(0, 0, 0)) -> np.ndarray:
+    
     """
     Draw text at the given center with a semi-transparent background.
     The position of the background rectangle is adjusted such that the text is centered.

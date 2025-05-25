@@ -5,15 +5,16 @@ import numpy as np
 from matplotlib import pyplot as plt
 from glob import glob
 from numpy.typing import NDArray
+from typing import Dict, List, Tuple
 
 
 def load_images(
     base_path: str,
     step_directory: str,
-    image_indices: list[int] = [1, 2, 3, 4, 5],
+    image_indices: List[int] = [1, 2, 3, 4, 5],
     is_resized: bool = False,
-    target_model_dims: tuple[int, int] = (180, 250),
-) -> tuple[dict[int, NDArray[np.uint8]], dict[int, NDArray[np.uint8]]]:
+    target_model_dims: Tuple[int, int] = (180, 250),
+) -> tuple[Dict[int, NDArray[np.uint8]], Dict[int, NDArray[np.uint8]]]:
 
     """
     Load images from disk. If base_path is 'models', resize images to a standard height
@@ -61,19 +62,23 @@ def load_images(
     return images_dict_rgb, images_gray_dict
 
 
-def show_images(images_dict: dict, n_cols: int,
-                title: str = '',
-                is_greyscale: bool = True) -> None:
-
+def show_images(
+    images_dict: Dict[str, NDArray[np.uint8]],
+    n_cols: int,
+    title: str = '',
+    is_greyscale: bool = True
+) -> None:
     """
     Displays a dictionary of images in a grid format using Matplotlib.
     Args:
-        images_dict (dict): A dictionary where keys are image identifiers (e.g., names or indices)
-                            and values are image data (e.g., NumPy arrays or PIL images).
+        images_dict (Dict[str, NDArray[np.uint8]]):
+            A dictionary where keys are image identifiers (e.g., names or indices)
+            and values are image data (e.g., NumPy arrays or PIL images).
+
         n_cols (int): The number of columns in the grid layout.
-        title (str, optional): A title for the entire grid of images. Defaults to an empty string.
-    Returns:
-        None: This function does not return anything. It displays the images using Matplotlib.
+        title (str, optional): A title for the entire.
+        is_greyscale (bool, optional): If True, images are displayed in greyscale.
+            Defaults to True.
     """
 
     num_images = len(images_dict.keys())
