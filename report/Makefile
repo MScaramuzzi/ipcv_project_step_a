@@ -1,2 +1,2 @@
 compile:
-	pandoc report.md -o report.pdf --from markdown --template eisvogel --listings
+	pandoc report.md -o report.pdf --from markdown --template eisvogel --listings --number-sections
