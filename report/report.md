@@ -5,79 +5,155 @@ author: [Marco Scaramuzzi]
 date: "2025-09-20"
 lang: "en"
 titlepage: true
+colorlinks: true
+toc-own-page: true
+listings-no-page-break: true
+header-includes:
+- |
+  ```{=latex}
+  \usepackage{awesomebox}
+  ```
+pandoc-latex-environment:
+  noteblock: [note]
+  importantblock: [important]
 ---
 
-# Product Recognition on Store Shelves: Step A Report
 
 ## Introduction
 
-This report summarizes the implementation of a computer vision system for single instance product detection on store shelves, as detailed in the Jupyter Notebook `step_A.ipynb`. The system successfully identifies instances of cereal boxes from reference images within scene images of supermarket shelves. Using Scale-Invariant Feature Transform (SIFT) applied to individual RGB channels, feature matching with FLANN-based matcher and Lowe's ratio test, and homography estimation via RANSAC, the approach achieves accurate localization and bounding box computation.
+<!-- ::: note
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquet libero
+quis lectus elementum fermentum.
 
-The system detects up to one instance per product type per scene (single-instance detection), reporting the number of instances, their pixel dimensions (width and height), and positions. Across five test scenes (e1.png to e5.png) and seven product models (`0.jpg`, `1.jpg`, `11.jpg`, `19.jpg`, `24.jpg`, `25.jpg`, `26.jpg`), the results show successful detections with bounding boxes drawn and metrics printed, demonstrating robust performance for the given dataset.
+Fusce aliquet augue sapien, non efficitur mi ornare sed. Morbi at dictum
+felis. Pellentesque tortor lacus, semper et neque vitae, egestas commodo nisl.
+:::
 
-## Project Structure (Workflow)
 
-The project is organized into a modular pipeline with six main phases, each implemented through dedicated functions that integrate seamlessly:
+::: important
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquet libero
+quis lectus elementum fermentum.
 
-1. **Data Inspection**: Images are loaded and inspected. Model images are resized to a consistent dimension (180x240 pixels) to mitigate scale disparities, while scene images are loaded as-is. Utility functions in `image_utils.py` handle loading and visualization.
+Fusce aliquet augue sapien, non efficitur mi ornare sed. Morbi at dictum
+felis. Pellentesque tortor lacus, semper et neque vitae, egestas commodo nisl.
+::: -->
 
-2. **Keypoints Detection and Description**: SIFT features are extracted separately for each RGB channel of both model and scene images. The `create_channel_dict` function splits images into channels, and `extract_features_dict` computes keypoints and descriptors, storing them in nested dictionaries keyed by image ID and channel ('R', 'G', 'B').
 
-3. **Feature Matching**: Matches are computed using FLANN-based k-nearest neighbors (k=2) search. The `initialize_flann` function sets up the matcher, `filter_matches` applies Lowe's ratio test (threshold 0.7) to discard false positives, and `compute_matches_dict_single` performs channel-wise matching, returning filtered matches per channel.
 
-4. **Object Identification**: Homography is estimated using RANSAC on stacked keypoints from all channels. `compute_homography` computes the transformation matrix, and `object_retrieve` checks if the total matches exceed a threshold (75 per channel × 3 channels = 225 total), projecting model corners to the scene if valid.
+This project implements a single-instance product detector that localizes cereal boxes in shelf images using SIFT features computed independently on the RGB channels, FLANN matching with Lowe's ratio test, and homography estimation with RANSAC. The notebook `step_A.ipynb` contains the runnable pipeline; this report highlights the workflow, key data structures, concise results (extracted from the notebook output), and a short conclusion.
 
-5. **Displaying Bounding Boxes and Printing Coordinates**: Detected instances are processed to compute aligned rectangles. `compute_aligned_rectangle` (from `bounding_box_utils.py`) approximates bounding boxes, ensuring rectangular shapes and constraining to image bounds. `process_and_draw_instances` draws boxes, labels centers with model IDs, and prints instance counts, positions, widths, and heights.
+## Project overview
 
-6. **Results Computation**: The `main` function orchestrates the workflow, iterating over scenes and models, extracting features once, performing detections, and visualizing results with matplotlib.
+The project consists of a pipeline for detecting products on store shelves using computer vision techniques. The main steps include loading images, extracting features, matching them, and estimating the position of products in the scene.
 
-The workflow emphasizes modularity, with utility functions in separate modules (`image_utils.py`, `bounding_box_utils.py`) for reusability.
 
-## Approach Followed with Data Structures
+The processing pipeline is compactly represented below. 
 
-The approach leverages local invariant features, specifically SIFT, applied to individual RGB channels instead of grayscale conversion. This captures complementary information across color channels, improving robustness against variations in lighting, texture, and color. Keypoints and descriptors are computed per channel to retain channel-specific details, then aggregated for matching.
+![Workflow representation ](../report/project_diagram.png)
 
-**Data Structures**:
+## Approach and key data structures
 
-- **Dictionaries for Features**: `extract_features_dict` returns two nested dictionaries: `keypoints_dict` and `descriptors_dict`. Structure:
+The approach can be summarized as follows: compute per-channel SIFT features, match per-channel with FLANN + ratio test, stack good matches to compute a robust homography, then derive an axis-aligned bounding rectangle from the projected model corners.
 
-  ```python
-  {
-      image_id: {
-          'R': [cv2.KeyPoint],
-          'G': [cv2.KeyPoint],
-          'B': [cv2.KeyPoint]
-      }
+Data structures (representative):
+
+```python
+keypoints_dict = {
+  image_id: {
+    'R': [cv2.KeyPoint, ...],
+    'G': [cv2.KeyPoint, ...],
+    'B': [cv2.KeyPoint, ...]
   }
-  ```
+}
 
-  for keypoints, and similarly for descriptors (NumPy arrays of `float32`).
-- **Matches Dictionary**: `compute_matches_dict_single` outputs `{channel: [cv2.DMatch]}` for filtered matches per channel.
-- **Homography and Projections**: Homography is a `3x3` NumPy array; projected corners are `4x1x2` `float32` arrays.
+descriptors_dict = {
+  image_id: {
+    'R': np.ndarray(shape=(N_R, 128), dtype=np.float32),
+    'G': np.ndarray(shape=(N_G, 128), dtype=np.float32),
+    'B': np.ndarray(shape=(N_B, 128), dtype=np.float32)
+  }
+}
 
-**Practical Workflow**:
+matches_per_channel = {
+  'R': [cv2.DMatch, ...],
+  'G': [cv2.DMatch, ...],
+  'B': [cv2.DMatch, ...]
+}
 
-- Features are extracted once at the start of `main` and passed to inner loops.
-- For each scene-model pair, single dictionaries (e.g., `kp_query_dict_single`) are sliced from full dictionaries and fed to `object_retrieve`.
-- Matches are computed per channel, stacked for homography, and results (bounding boxes) are collected in lists for drawing.
+# homography: `3x3` NumPy array
+# projected corners: `4x1x2` `float32` array
+```
 
-**Theoretical Workflow**:
+Notes: model images were resized consistently before feature extraction; features are computed once and reused across model-vs-scene comparisons.
 
-- **Keypoints Prediction**: SIFT detects scale- and rotation-invariant keypoints per channel, representing interest points (e.g., corners, edges) with descriptors (128-dimensional vectors) for matching.
-- **Utilization in Pipeline**: Keypoints enable feature matching via FLANN, where descriptors are compared. Lowe's test filters reliable matches. Stacked keypoints from channels provide more data for robust RANSAC homography, transforming model coordinates to scene space. This predicts object presence and pose, enabling bounding box computation and visualization.
+## Results (parsed from notebook output)
 
-This multi-channel approach enhances detection accuracy by leveraging color information, addressing single-instance constraints without complex multi-instance handling.
+Below are the detections produced by `main(min_count=75, ...)` for the five scenes. For each scene I include only products that had 1 instance (the single-instance constraint). The instance lines are verbatim from the notebook prints. The saved visualization for each scene is included below the textual results.
 
-## Results
+- Scene 1 (`figures/scene_1_bounding_boxes.png`)
 
-The system was tested on five scene images (e1.png to e5.png) with seven product models (`0.jpg`, `1.jpg`, `11.jpg`, `19.jpg`, `24.jpg`, `25.jpg`, `26.jpg`). Execution of `main(min_count=75, ...)` yielded detections varying by scene, with each detected model having 1 instance (as per single-instance constraint). For example:
+  - Product `0` - 1 instance found:
+    - Instance 1 {position: (162, 216), width: 309px, height: 432px}
 
-- **Scene e1**: Detected models `0`, `1`, `11`, `19`, `24`, `25`, `26` (7 instances total). Each with bounding boxes, centers, widths, and heights printed (e.g., Product `0` - 1 instance: position (x, y), width px, height px).
-- **Scene e2**: Detected models `0`, `1`, `11`, `19`, `24`, `25`, `26` (7 instances total).
-- **Scenes e3, e4, e5**: Similar detections, with instances found for most models, showing successful identification across varying shelf layouts.
+  - Product `11` - 1 instance found:
+    - Instance 1 {position: (444, 180), width: 299px, height: 359px}
 
-Visual outputs displayed scenes with green bounding boxes and model IDs at centers. Metrics confirmed pixel-accurate dimensions and positions, meeting project requirements for instance counts and sizes.
+  ![Scene 1 bounding boxes](../figures/scene_1_bounding_boxes.png)
+
+- Scene 2 (`figures/scene_2_bounding_boxes.png`)
+
+  - Product `24` - 1 instance found:
+    - Instance 1 {position: (167, 232), width: 334px, height: 464px}
+
+  - Product `25` - 1 instance found:
+    - Instance 1 {position: (878, 232), width: 311px, height: 440px}
+
+  - Product `26` - 1 instance found:
+    - Instance 1 {position: (538, 230), width: 332px, height: 461px}
+
+  ![Scene 2 bounding boxes](../figures/scene_2_bounding_boxes.png)
+
+- Scene 3 (`figures/scene_3_bounding_boxes.png`)
+
+  - Product `0` - 1 instance found:
+    - Instance 1 {position: (172, 234), width: 323px, height: 436px}
+
+  - Product `1` - 1 instance found:
+    - Instance 1 {position: (816, 197), width: 303px, height: 394px}
+
+  - Product `11` - 1 instance found:
+    - Instance 1 {position: (476, 192), width: 303px, height: 385px}
+
+  ![Scene 3 bounding boxes](../figures/scene_3_bounding_boxes.png)
+
+- Scene 4 (`figures/scene_4_bounding_boxes.png`)
+
+  - Product `0` - 1 instance found:
+    - Instance 1 {position: (160, 738), width: 320px, height: 435px}
+
+  - Product `11` - 1 instance found:
+    - Instance 1 {position: (463, 690), width: 304px, height: 396px}
+
+  - Product `25` - 1 instance found:
+    - Instance 1 {position: (554, 216), width: 318px, height: 433px}
+
+  - Product `26` - 1 instance found:
+    - Instance 1 {position: (206, 221), width: 341px, height: 442px}
+
+  ![Scene 4 bounding boxes](../figures/scene_4_bounding_boxes.png)
+
+- Scene 5 (`figures/scene_5_bounding_boxes.png`)
+
+  - Product `19` - 1 instance found:
+    - Instance 1 {position: (504, 192), width: 295px, height: 383px}
+
+  - Product `25` - 1 instance found:
+    - Instance 1 {position: (161, 228), width: 320px, height: 445px}
+
+  ![Scene 5 bounding boxes](../figures/scene_5_bounding_boxes.png)
 
 ## Conclusions
 
-The implementation demonstrates effective single-instance product detection using SIFT on RGB channels, FLANN matching, and RANSAC homography. The modular structure and data flow ensure maintainability, with results validating the approach for the dataset. Strengths include robustness to scale/color variations via channel-wise processing and homography constraints. Limitations: Assumes single instances; may struggle with occlusions or extreme angles. Future extensions could incorporate multi-instance detection or deep learning for broader applicability.
+Summary: the SIFT-per-channel + FLANN + RANSAC pipeline reliably localizes single instances of the provided product models in the five test scenes. The saved `figures/scene_*.png` images contain the annotated outputs used to verify detections. 
+
+Next steps: extend to multi-instance detection, add quantitative metrics (precision/recall), or move to a learned detector for greater robustness under heavy occlusion.

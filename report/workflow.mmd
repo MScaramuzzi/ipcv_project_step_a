@@ -1,0 +1,11 @@
+```mermaid
+flowchart TD
+  A[Load images] --> B[Split into channels]
+  B --> C["Extract SIFT keypoints and descriptors per channel"]
+  C --> D["FLANN k=2 matching per channel"]
+  D --> E["Lowe ratio test (filter matches)"]
+  E --> F["Stack matches across channels"]
+  F --> G["RANSAC homography estimation"]
+  G --> H["Project model corners and compute aligned rectangle"]
+  H --> I["Draw bounding box, print instance info, save figure"]
+```
