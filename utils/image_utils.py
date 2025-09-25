@@ -1,9 +1,10 @@
-import cv2
-from typing import Tuple
 import os
+from glob import glob
+from typing import Tuple
+
+import cv2
 import numpy as np
 from matplotlib import pyplot as plt
-from glob import glob
 from numpy.typing import NDArray
 
 
@@ -12,7 +13,7 @@ def load_images(
     step_directory: str,
     image_indices: list[int] = [1, 2, 3, 4, 5],
     is_resized: bool = False,
-    target_model_dims: tuple[int,int] = (180, 250),
+    target_model_dims: tuple[int, int] = (180, 250),
 ) -> dict[int, NDArray[np.uint8]]:
     """
     Load images from disk. If base_path is 'models', resize images to a standard height
@@ -28,13 +29,15 @@ def load_images(
         dict[int, np.ndarray]: Dictionary mapping index to RGB image
     """
 
-    if (base_path == 'models') or (base_path == 'scenes' and step_directory == 'step_C'):
-        end_path = '.jpg'
+    if (base_path == "models") or (
+        base_path == "scenes" and step_directory == "step_C"
+    ):
+        end_path = ".jpg"
     else:
-        end_path = '.png'
+        end_path = ".png"
 
     current_path = os.path.join(base_path, step_directory)
-    pattern = os.path.join(current_path, f'*{end_path}')
+    pattern = os.path.join(current_path, f"*{end_path}")
     images = glob(pattern)
 
     assert len(image_indices) == len(images), "Mismatch between image count and indices"
@@ -46,9 +49,11 @@ def load_images(
         img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
         original_height, original_width = img_rgb.shape[:2]
 
-        if base_path == 'models' and is_resized == True:
+        if base_path == "models" and is_resized is True:
             # Print shape if the image is a model
-            print(f'model: {image_indices[idx]} | {original_height = } | {original_width = }')
+            print(
+                f"model: {image_indices[idx]} | {original_height = } | {original_width = }"
+            )
 
             # Resize model images to fixed or auto height
             img_rgb = cv2.resize(img_rgb, target_model_dims)
@@ -59,7 +64,7 @@ def load_images(
     return images_dict
 
 
-def show_images(images_dict: dict, n_cols: int, title: str = '') -> None:
+def show_images(images_dict: dict, n_cols: int, title: str = "") -> None:
     """
     Displays a dictionary of images in a grid format using Matplotlib.
     Args:
@@ -79,8 +84,8 @@ def show_images(images_dict: dict, n_cols: int, title: str = '') -> None:
         plt.subplot(rows, n_cols, i + 1)
         plt.imshow(img)
         if title:
-            plt.title(f'Image num. {list(images_dict.keys())[i]}')
-            plt.suptitle(title,fontsize=15)
+            plt.title(f"Image num. {list(images_dict.keys())[i]}")
+            plt.suptitle(title, fontsize=15)
         # plt.axis('off')
     plt.show()
 
@@ -103,7 +108,10 @@ def show_images(images_dict: dict, n_cols: int, title: str = '') -> None:
 #     plt.title(f'Drawing bounding box of model {model_id} for scene {scene_id}', fontsize=13)
 #     plt.show()
 
-def draw_bounding_box(img_train: NDArray[np.uint8], dst: NDArray[np.float32]) -> NDArray[np.uint8]:
+
+def draw_bounding_box(
+    img_train: NDArray[np.uint8], dst: NDArray[np.float32]
+) -> NDArray[np.uint8]:
     """
     Draws a bounding box on the given image using the provided destination points.
 
@@ -120,5 +128,5 @@ def draw_bounding_box(img_train: NDArray[np.uint8], dst: NDArray[np.float32]) ->
         isClosed=True,
         color=(0, 255, 0),
         thickness=4,
-        lineType=cv2.LINE_AA
+        lineType=cv2.LINE_AA,
     )
