@@ -4,10 +4,10 @@ Color mode log file
 ****************************************************************************************************
 
 Product 0 - 1 instance(s) found:
-	Instance 1 {position: (162, 216), width: 309px, height: 431px}
+	Instance 1 {position: (162, 215), width: 309px, height: 430px}
 Product 1 - 0 instance(s) found:
 Product 11 - 1 instance(s) found:
-	Instance 1 {position: (444, 181), width: 299px, height: 362px}
+	Instance 1 {position: (443, 182), width: 300px, height: 363px}
 Product 19 - 0 instance(s) found:
 Product 24 - 0 instance(s) found:
 Product 25 - 0 instance(s) found:
@@ -35,9 +35,9 @@ Product 26 - 1 instance(s) found:
 ****************************************************************************************************
 
 Product 0 - 1 instance(s) found:
-	Instance 1 {position: (170, 234), width: 324px, height: 435px}
+	Instance 1 {position: (170, 234), width: 323px, height: 435px}
 Product 1 - 1 instance(s) found:
-	Instance 1 {position: (818, 197), width: 303px, height: 394px}
+	Instance 1 {position: (818, 196), width: 301px, height: 393px}
 Product 11 - 1 instance(s) found:
 	Instance 1 {position: (476, 193), width: 303px, height: 386px}
 Product 19 - 0 instance(s) found:
@@ -54,11 +54,11 @@ Product 0 - 1 instance(s) found:
 	Instance 1 {position: (160, 738), width: 320px, height: 435px}
 Product 1 - 0 instance(s) found:
 Product 11 - 1 instance(s) found:
-	Instance 1 {position: (464, 689), width: 303px, height: 396px}
+	Instance 1 {position: (464, 688), width: 303px, height: 396px}
 Product 19 - 0 instance(s) found:
 Product 24 - 0 instance(s) found:
 Product 25 - 1 instance(s) found:
-	Instance 1 {position: (554, 220), width: 319px, height: 441px}
+	Instance 1 {position: (554, 216), width: 319px, height: 433px}
 Product 26 - 1 instance(s) found:
 	Instance 1 {position: (206, 221), width: 341px, height: 442px}
 🔬 Completed analysis of scene: 4
@@ -71,10 +71,10 @@ Product 0 - 0 instance(s) found:
 Product 1 - 0 instance(s) found:
 Product 11 - 0 instance(s) found:
 Product 19 - 1 instance(s) found:
-	Instance 1 {position: (504, 191), width: 294px, height: 382px}
+	Instance 1 {position: (504, 191), width: 295px, height: 382px}
 Product 24 - 0 instance(s) found:
 Product 25 - 1 instance(s) found:
-	Instance 1 {position: (160, 228), width: 319px, height: 443px}
+	Instance 1 {position: (161, 228), width: 320px, height: 445px}
 Product 26 - 0 instance(s) found:
 🔬 Completed analysis of scene: 5
 

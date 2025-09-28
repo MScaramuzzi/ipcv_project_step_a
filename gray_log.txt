@@ -7,7 +7,7 @@ Product 0 - 1 instance(s) found:
 	Instance 1 {position: (162, 215), width: 309px, height: 430px}
 Product 1 - 0 instance(s) found:
 Product 11 - 1 instance(s) found:
-	Instance 1 {position: (445, 180), width: 302px, height: 361px}
+	Instance 1 {position: (444, 180), width: 299px, height: 360px}
 Product 19 - 0 instance(s) found:
 Product 24 - 0 instance(s) found:
 Product 25 - 0 instance(s) found:
@@ -25,7 +25,7 @@ Product 19 - 0 instance(s) found:
 Product 24 - 1 instance(s) found:
 	Instance 1 {position: (167, 232), width: 334px, height: 464px}
 Product 25 - 1 instance(s) found:
-	Instance 1 {position: (878, 232), width: 311px, height: 440px}
+	Instance 1 {position: (878, 232), width: 311px, height: 439px}
 Product 26 - 1 instance(s) found:
 	Instance 1 {position: (538, 230), width: 332px, height: 461px}
 🔬 Completed analysis of scene: 2
@@ -36,9 +36,10 @@ Product 26 - 1 instance(s) found:
 
 Product 0 - 1 instance(s) found:
 	Instance 1 {position: (170, 234), width: 323px, height: 435px}
-Product 1 - 0 instance(s) found:
+Product 1 - 1 instance(s) found:
+	Instance 1 {position: (818, 196), width: 303px, height: 393px}
 Product 11 - 1 instance(s) found:
-	Instance 1 {position: (475, 192), width: 304px, height: 384px}
+	Instance 1 {position: (476, 192), width: 303px, height: 383px}
 Product 19 - 0 instance(s) found:
 Product 24 - 0 instance(s) found:
 Product 25 - 0 instance(s) found:
@@ -50,14 +51,15 @@ Product 26 - 0 instance(s) found:
 ****************************************************************************************************
 
 Product 0 - 1 instance(s) found:
-	Instance 1 {position: (160, 737), width: 320px, height: 436px}
-Product 1 - 0 instance(s) found:
+	Instance 1 {position: (160, 737), width: 321px, height: 436px}
+Product 1 - 1 instance(s) found:
+	Instance 1 {position: (464, 688), width: 298px, height: 388px}
 Product 11 - 1 instance(s) found:
-	Instance 1 {position: (463, 692), width: 304px, height: 397px}
+	Instance 1 {position: (464, 690), width: 303px, height: 395px}
 Product 19 - 0 instance(s) found:
 Product 24 - 0 instance(s) found:
 Product 25 - 1 instance(s) found:
-	Instance 1 {position: (554, 216), width: 319px, height: 431px}
+	Instance 1 {position: (554, 218), width: 319px, height: 435px}
 Product 26 - 1 instance(s) found:
 	Instance 1 {position: (206, 221), width: 341px, height: 442px}
 🔬 Completed analysis of scene: 4
@@ -73,7 +75,7 @@ Product 19 - 1 instance(s) found:
 	Instance 1 {position: (504, 191), width: 295px, height: 382px}
 Product 24 - 0 instance(s) found:
 Product 25 - 1 instance(s) found:
-	Instance 1 {position: (162, 226), width: 319px, height: 440px}
+	Instance 1 {position: (161, 228), width: 320px, height: 444px}
 Product 26 - 0 instance(s) found:
 🔬 Completed analysis of scene: 5
 
