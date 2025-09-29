@@ -7,7 +7,7 @@ Product 0 - 1 instance(s) found:
 	Instance 1 {position: (162, 215), width: 309px, height: 430px}
 Product 1 - 0 instance(s) found:
 Product 11 - 1 instance(s) found:
-	Instance 1 {position: (444, 180), width: 299px, height: 360px}
+	Instance 1 {position: (443, 181), width: 300px, height: 362px}
 Product 19 - 0 instance(s) found:
 Product 24 - 0 instance(s) found:
 Product 25 - 0 instance(s) found:
@@ -37,7 +37,7 @@ Product 26 - 1 instance(s) found:
 Product 0 - 1 instance(s) found:
 	Instance 1 {position: (170, 234), width: 323px, height: 435px}
 Product 1 - 1 instance(s) found:
-	Instance 1 {position: (818, 196), width: 303px, height: 393px}
+	Instance 1 {position: (819, 196), width: 306px, height: 393px}
 Product 11 - 1 instance(s) found:
 	Instance 1 {position: (476, 192), width: 303px, height: 383px}
 Product 19 - 0 instance(s) found:
@@ -51,11 +51,11 @@ Product 26 - 0 instance(s) found:
 ****************************************************************************************************
 
 Product 0 - 1 instance(s) found:
-	Instance 1 {position: (160, 737), width: 321px, height: 436px}
+	Instance 1 {position: (160, 737), width: 320px, height: 436px}
 Product 1 - 1 instance(s) found:
-	Instance 1 {position: (464, 688), width: 298px, height: 388px}
+	Instance 1 {position: (464, 687), width: 298px, height: 388px}
 Product 11 - 1 instance(s) found:
-	Instance 1 {position: (464, 690), width: 303px, height: 395px}
+	Instance 1 {position: (464, 688), width: 303px, height: 395px}
 Product 19 - 0 instance(s) found:
 Product 24 - 0 instance(s) found:
 Product 25 - 1 instance(s) found:
@@ -75,7 +75,7 @@ Product 19 - 1 instance(s) found:
 	Instance 1 {position: (504, 191), width: 295px, height: 382px}
 Product 24 - 0 instance(s) found:
 Product 25 - 1 instance(s) found:
-	Instance 1 {position: (161, 228), width: 320px, height: 444px}
+	Instance 1 {position: (161, 228), width: 320px, height: 445px}
 Product 26 - 0 instance(s) found:
 🔬 Completed analysis of scene: 5
 

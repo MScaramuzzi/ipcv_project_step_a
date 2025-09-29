@@ -39,7 +39,7 @@ pandoc-latex-environment:
 ## Project introduction
 
 The project develops a computer vision pipeline to detect product images ("models") within grocery store shelf photographs ("scenes").
-The detector is expected to annotate each recognized product by drawing an axis-aligned bounding box on the scene image and reporting the bounding-box center coordinates along with its width and height (in pixels). 
+The detector is expected to annotate each recognized product by drawing an axis-aligned bounding box on the scene image and reporting the bounding-box center coordinates along with its width and height (in pixels).
 
 The project is divided into two main steps: Step A and Step B:  
 
@@ -62,19 +62,13 @@ Fusce aliquet augue sapien, non efficitur mi ornare sed. Morbi at dictum
 felis. Pellentesque tortor lacus, semper et neque vitae, egestas commodo nisl.
 ::: -->
 
-
 ## Step A
 
-The notebook `step_A.ipynb` contains the runnable pipeline; this report highlights the chosen methodology and implementation details, results and a short conclusion. For Step A, all models were correctly recognized.
-
-### Task introduction
-
-
-
+This section of the report summarizes the methodology, implementation details, and experimental results obtained when attempting step A, and concludes with brief remarks. For Step A, all models were correctly recognized; the runnable pipeline is available in the notebook `step_A.ipynb`.
 
 ### Task overview
 
-The task A requires to implement a single-instance product detector that localizes cereal boxes in shelf images. The task was attempted using SIFT features, computed independently on the RGB channels, FLANN matching with Lowe's ratio test, and homography estimation with RANSAC. 
+The task A requires to implement a single-instance product detector that localizes cereal boxes in shelf images. The task was attempted using SIFT features, computed independently on the RGB channels, FLANN matching with Lowe's ratio test, and homography estimation with RANSAC.
 
 The processing pipeline is compactly represented in [@fig:diagram].
 
@@ -86,8 +80,7 @@ This section gives a deeper explanation of the pipeline (both theoretical motiva
 
 #### High-level pipeline
 
-<!-- for newline -->
-␣␣
+␣␣  <!-- for newline -->
 
 The main steps of the pipeline are as follows:
 
@@ -111,67 +104,41 @@ Lastly, the `main` function saves the annotated output images with the computed 
 
 - **Color-preserving detection**: converting to grayscale discards chromatic edges and contrast that can be crucial for brand logos or colored patterns. Computing SIFT independently on R/G/B preserves such color-specific details.
 
-
 - **Complementary matches**: features that are weak in one channel may be strong in another; stacking channel-wise good matches increases the chance of obtaining enough matches for robust homography estimation. This is particularly important in scenarios where products have distinct color features that may not be prominent in grayscale.
 
 - **Practical trade-offs**: processing three channels multiplies descriptor storage and matching work by $\approx\times3$. Given that the main goal of our project is to reliably detect single instances of known products in controlled shelf images, the trade-off speed vs accuracy is acceptable. Moreover, during experimentation it was observed that using grayscale SIFT led to instability in the model detection, making the prediction unreliable.
 
-The issue revolved around models 1 and 11, which are visually similar but differ significantly in color(one is mainly blue while the other is mainly orange). When using SIFT detector on the grayscale image, the outcome was that it struggled to differentiate between the two similar boxes and it just detected the first one it encountered, leading to incorrect matches and missed detections. Also raising the `min_count` parameter did not fully resolve the issue, because it would make the detection not reliable when models 1 and 11 were present in the same scene.
+#### Grayscale approach issues
 
-  ![Wrong detection for models 1 and 11 in scene 3 with `min_count`=110](../figures/gray/scene_3_bounding_boxes_gray.png){height="0.5\textheight" width=50% #fig:scene-e3}
+␣␣
 
-  <!-- \footnotetext{Testo della nota relativa alla figura.} -->
+During the experimentation phase, it was observed that using SIFT on grayscale images led to instability in model detection, particularly with models 1 and 11. This instability made the predictions unreliable, as the algorithm struggled to differentiate between these two visually similar boxes.
 
-  ![Wrong detection for models 1 and 11 in scene 4 `min_count`=110](../figures/gray/scene_4_bounding_boxes_gray.png){height="0.5\textheight" width=50% #fig:scene-e4}
+The issue around models 1 and 11 is the following: they are visually similar but differ significantly in color (one is mainly blue while the other is mainly orange). When using SIFT detector on the grayscale image, the outcome was that it struggled to differentiate between the two similar boxes either detecting them on the same box (if the min_count was low) or missing them entirely (if min_count was higher).
 
-For example, by inspecting [@fig:scene-e3], the grayscale approach was able to detect both models in the scene, but it identified them on the same box. In other words, it only confirmed their presence in the scene without correctly distinguishing and localizing each of them by matching them to the appropriate cereal box. This can be emphasized also by inspecting the textual output:
+  ![Wrong detection for models 1 and 11 in scene 4 `min_count`= 110](../figures/gray/110/scene_4_bounding_boxes_gray.png){height="0.5\textheight" width=50% #fig:scene-e4}
 
-- Product `0` — 1 instance found:
-  - Instance 1 {position: (160, 738), width: 321px, height: 435px}
+For example, by inspecting [@fig:scene-e4], the grayscale approach has wrongly detected both models in the scene, when it should have just detected model 11. The bounding box for model 1 is incorrectly placed on the same box as model 11, indicating a failure to distinguish between the two. This can be emphasized also by inspecting the textual output:
 
-- Product `1` — 1 instance found:
-  - Instance 1 {position: (464, 687), width: 297px, height: 388px}
+Also raising the `min_count` parameter did not fully resolve the issue, because it would not guarantee detection when the number of good matches was low and the models both present in the same scene. This can be seen in [@fig:scene-e3].
 
-- Product `11` — 1 instance found:
-  - Instance 1 {position: (464, 690), width: 303px, height: 395px}
-
-- Product `25` — 1 instance found:
-  - Instance 1 {position: (554, 220), width: 319px, height: 440px}
-
-- Product `26` — 1 instance found:
-  - Instance 1 {position: (206, 221), width: 341px, height: 442px}
-
-We can quickly notice that the bounding box for model 1 and model 11 are almost overlapping, which is not correct.
-
-The same issue can be observed in [@fig:scene-e4], where the grayscale approach again detected both models but failed to localize them correctly, leading to inaccurate bounding boxes.
-
-Table: Results of model matching {#tbl:results}
-
-| model_id | scene_id | num_gray | min_match_count | above_threshold |
-|:--------:|:--------:|:--------:|:---------------:|:---------------:|
-| 0        | 1        | 163      | 112             | 51              |
-| 11       | 1        | 160      | 112             | 48              |
-| 24       | 2        | 196      | 112             | 84              |
-| 25       | 2        | 163      | 112             | 51              |
-| 26       | 2        | 237      | 112             | 125             |
-| 0        | 3        | 145      | 112             | 33              |
-| 0        | 4        | 138      | 112             | 26              |
-| 11       | 4        | 152      | 112             | 40              |
-| 25       | 4        | 149      | 112             | 37              |
-| 26       | 4        | 213      | 112             | 101             |
-| 19       | 5        | 170      | 112             | 58              |
-| 25       | 5        | 163      | 112             | 51              |
-
-See [@tbl:results] for details.
+  ![No detection for models 1 and 11 in scene 3 `min_count` = 115](../figures/gray/115/scene_3_bounding_boxes_gray.png){height="0.5\textheight" width=50% #fig:scene-e3}
 
 
+
+The power of the RGB approach became evident in this context, as it provided a more robust and reliable detection, with minimal preprocessing and operations (the images were only resized to a common shape and the SIFT was applied on the RGB channels).
 In this context, the RGB approach, while more computationally intensive, provided a more robust and reliable detection.
-
-
 
 #### Main implementation components
 
 - SIFT: instantiated via `sift = cv2.SIFT_create()` and applied per-channel in `extract_features_dict`. Model images were resized to a common shape `(180,240)` before feature extraction to reduce inter-model scale variability. This normalization stabilizes keypoint distribution and simplifies numeric thresholds like `min_count`.
+
+:::note
+
+Considering that query images have different sizes, they have been resized to `(180,240)` to normalize resolution across models. While SIFT is scale-invariant, this normalization balances the number of keypoints and improves computational consistency. However, in contexts where multi-scale granularity is crucial, resizing may be suboptimal; preserving natural resolution and exploiting scale-space or multi-resolution feature extraction better retains both coarse and fine structures for matching.
+
+:::
+
 
 - FLANN: the matcher is built in `initialize_flann()` with KD-tree (`trees=5`) and search `checks=50` (these parameters are tuned for a balance between speed and accuracy). FLANN's `knnMatch(..., k=2)` returns pairs used by Lowe's ratio. It is particularly efficient for high-dimensional descriptor matching, leveraging approximate nearest neighbor search to balance speed and accuracy.
 
@@ -286,7 +253,3 @@ The textual output reports the number of detected products instances alongside t
 ### Step A task conclusions
 
 The SIFT-per-channel + FLANN + RANSAC pipeline reliably localizes single instances of the provided product models in the five test scenes. The saved `step_a/figures/scene_*.png` images contain the annotated outputs used to verify the detections.
-
-\newpage
-
-## Step B
